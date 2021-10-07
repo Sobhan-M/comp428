@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 	int rank;
 
 	// Information about the circle.
-	const int TOTAL_POINTS = 10000;
+	const int TOTAL_POINTS = 1000000;
 	int pointCount = 0;
 	int totalPointCount;
 	float pi;
@@ -31,8 +31,8 @@ int main(int argc, char *argv[])
 	const int POINTS_PER_PROCESSOR = TOTAL_POINTS/size;
 
 	// Starting time.
-	clock_t startTime = clock();
-	clock_t endTime;
+	double startTime = MPI_Wtime();
+	double endTime;
 
 	countNumInCircle(&pointCount, POINTS_PER_PROCESSOR);
 
@@ -43,14 +43,13 @@ int main(int argc, char *argv[])
 		pi = 4.0*totalPointCount/TOTAL_POINTS;
 	}
 	
-
+	endTime = MPI_Wtime();
 	MPI_Finalize();
-	endTime = clock();
-
+	
 	if (rank == MASTER_RANK)
 	{
 		printf("PI = %f \n", pi);
-		printf("Total Time = %f ms \n", (double)(endTime - startTime)/CLOCKS_PER_SEC);
+		printf("Total Time = %f s \n", (endTime - startTime));
 	}
 
 	return 0;

@@ -14,7 +14,7 @@
 
 int main()
 {
-	const int TOTAL_POINTS = 10000;
+	const int TOTAL_POINTS = 1000000;
 	int numOfPointsInCircle = 0;
 	float randomPointX;
 	float randomPointY;
@@ -41,7 +41,7 @@ int main()
 	endTime = clock();
 
 	printf("PI = %f \n", pi);
-	printf("Total Time = %f ms \n", (double)(endTime - startTime)/CLOCKS_PER_SEC);
+	printf("Total Time = %f s \n", (double)(endTime - startTime)/CLOCKS_PER_SEC);
 
 	return 0;
 }

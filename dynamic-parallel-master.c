@@ -24,6 +24,7 @@ int main(int argc, char *argv[])
 
 	int shouldLoop = TRUE;
 	const int CONVERGENCE_ITERATIONS = 3;
+	const float CONVERGENCE_THRESHOLD = 0.01;
 	int convergenceNum = 0;
 	// Setting up MPI.
 	MPI_Init(&argc, &argv);
@@ -32,8 +33,8 @@ int main(int argc, char *argv[])
 	srand(time(0)+rank);
 
 	// Starting time.
-	clock_t startTime = clock();
-	clock_t endTime;
+	double startTime = MPI_Wtime();
+	double endTime;
 
 	if (argc != 2)
 	{
@@ -48,9 +49,9 @@ int main(int argc, char *argv[])
 	{
 		MPI_Comm_spawn(CHILD_COMMAND, argv, numOfChildren, MPI_INFO_NULL, MASTER_RANK, MPI_COMM_SELF, &childComm, MPI_ERRCODES_IGNORE);
 		MPI_Reduce(&pi, &piNew, 1, MPI_FLOAT, MPI_SUM, MPI_ROOT, childComm);
-		piNew /= numOfChildren;
+		piNew = (pi + piNew)/(numOfChildren+1);
 
-		if (abs((piNew - pi)/pi) < 0.0001)
+		if (((float)(piNew - pi))/pi < CONVERGENCE_THRESHOLD && ((float)(piNew - pi))/pi > -CONVERGENCE_THRESHOLD)
 		{
 			convergenceNum++;
 			if (convergenceNum == CONVERGENCE_ITERATIONS)
@@ -63,16 +64,16 @@ int main(int argc, char *argv[])
 			convergenceNum = 0;
 		}
 		pi = piNew;
-		printf("%f\n", pi);
+		printf("Aggregate Pi = %f\n", pi);
 	}
-
+	endTime = MPI_Wtime();
 	MPI_Finalize();
-	endTime = clock();
+	
 
 	if (rank == MASTER_RANK)
 	{
 		printf("PI = %f \n", pi);
-		printf("Total Time = %f ms \n", (double)(endTime - startTime)/CLOCKS_PER_SEC);
+		printf("Total Time = %f ms \n", (endTime - startTime));
 	}
 
 	return 0;

@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
 	MPI_Comm_size(MPI_COMM_WORLD, &numOfProcessors);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_get_parent(&parentComm);
-	srand(time(0)+rank);
+	srand(time(0)+rank*clock());
 
 	countNumInCircle(&numOfPointsInCircle, TOTAL_POINTS);
 	pi = 4.0*numOfPointsInCircle/TOTAL_POINTS;
