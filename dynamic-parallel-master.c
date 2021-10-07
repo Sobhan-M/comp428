@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 	if (rank == MASTER_RANK)
 	{
 		printf("PI = %f \n", pi);
-		printf("Total Time = %f ms \n", (endTime - startTime));
+		printf("Total Time = %f s \n", (endTime - startTime));
 	}
 
 	return 0;
