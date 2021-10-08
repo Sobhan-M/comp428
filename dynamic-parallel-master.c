@@ -26,8 +26,8 @@ int main(int argc, char *argv[])
 	float piNew = 0;
 
 	int shouldLoop = TRUE;
-	const int CONVERGENCE_ITERATIONS = 1;
-	const float CONVERGENCE_THRESHOLD = 0.1;
+	const int CONVERGENCE_ITERATIONS = 3;
+	const float CONVERGENCE_THRESHOLD = 0.001;
 	int convergenceNum = 0;
 	int iterations = 1000;
 	const int ITERATIONS_INCREMENT = 1000;
@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
 	{
 		MPI_Bcast(&iterations, 1, MPI_INT, MPI_ROOT, childComm);
 		MPI_Reduce(&pi, &piNew, 1, MPI_FLOAT, MPI_SUM, MPI_ROOT, childComm);
-		piNew = (pi + piNew)/(numOfChildren+1);
+		piNew /= numOfChildren;
 
 		if (rateOfChange(piNew, pi) < CONVERGENCE_THRESHOLD && rateOfChange(piNew, pi) > -CONVERGENCE_THRESHOLD)
 		{

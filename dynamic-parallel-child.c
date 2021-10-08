@@ -33,14 +33,17 @@ int main(int argc, char *argv[])
 	while(shouldLoop)
 	{
 		MPI_Bcast(&iterations, 1, MPI_INT, MASTER_RANK, parentComm);
+		printf("Child %d: Iterations = %d\n", rank, iterations);
 
 		countNumInCircle(&numOfPointsInCircle, iterations);
 		pi = 4.0*numOfPointsInCircle/iterations;
+		numOfPointsInCircle = 0;
 
 		printf("Child %d: Pi = %f\n", rank, pi);
 		MPI_Reduce(&pi, &piNew, 1, MPI_FLOAT, MPI_SUM, MASTER_RANK, parentComm);
 
 		MPI_Bcast(&shouldLoop, 1, MPI_INT, MASTER_RANK, parentComm);
+		printf("Child %d: Should Loop = %d\n", rank, shouldLoop);
 	}
 
 	MPI_Finalize();
