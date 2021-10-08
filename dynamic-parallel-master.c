@@ -7,6 +7,9 @@
 #define TRUE 1
 #define FALSE 0
 
+// Returns the rate of change, where 1 is 100%. Can be both positive and negative.
+float rateOfChange(float new, float old);
+
 int main(int argc, char *argv[])
 {
 
@@ -51,7 +54,7 @@ int main(int argc, char *argv[])
 		MPI_Reduce(&pi, &piNew, 1, MPI_FLOAT, MPI_SUM, MPI_ROOT, childComm);
 		piNew = (pi + piNew)/(numOfChildren+1);
 
-		if (((float)(piNew - pi))/pi < CONVERGENCE_THRESHOLD && ((float)(piNew - pi))/pi > -CONVERGENCE_THRESHOLD)
+		if (rateOfChange(piNew, pi) < CONVERGENCE_THRESHOLD && rateOfChange(piNew, pi) > -CONVERGENCE_THRESHOLD)
 		{
 			convergenceNum++;
 			if (convergenceNum == CONVERGENCE_ITERATIONS)
@@ -77,4 +80,9 @@ int main(int argc, char *argv[])
 	}
 
 	return 0;
+}
+
+float rateOfChange(float new, float old)
+{
+	return (new - old)/old;
 }
