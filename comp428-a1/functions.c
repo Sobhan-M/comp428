@@ -1,4 +1,4 @@
-#include "circle-functions.h"
+#include "functions.h"
 #include <stdio.h>
 #include <stdlib.h>
 #define TRUE 1

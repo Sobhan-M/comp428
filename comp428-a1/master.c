@@ -3,7 +3,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <mpi.h>
-#include "circle-functions.h"
+#include "functions.h"
 #define TRUE 1
 #define FALSE 0
 
@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 
 	// MPI information.
 	const int MASTER_RANK = 0;
-	const char* CHILD_COMMAND = "dynamic-parallel-child";
+	const char* CHILD_COMMAND = "child";
 	int numOfParents;
 	int rank;
 	int numOfChildren;

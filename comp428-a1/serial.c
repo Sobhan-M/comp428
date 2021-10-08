@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "circle-functions.h"
+#include "functions.h"
 #define TRUE 1
 #define FALSE 0
 
