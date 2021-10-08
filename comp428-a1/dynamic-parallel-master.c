@@ -27,8 +27,11 @@ int main(int argc, char *argv[])
 
 	int shouldLoop = TRUE;
 	const int CONVERGENCE_ITERATIONS = 3;
-	const float CONVERGENCE_THRESHOLD = 0.01;
+	const float CONVERGENCE_THRESHOLD = 0.001;
 	int convergenceNum = 0;
+	int iterations = 1000;
+	const int ITERATIONS_INCREMENT = 1000;
+
 	// Setting up MPI.
 	MPI_Init(&argc, &argv);
 	MPI_Comm_size(MPI_COMM_WORLD, &numOfParents);
@@ -48,11 +51,12 @@ int main(int argc, char *argv[])
 		numOfChildren = atoi(argv[1]);
 	}
 
+	MPI_Comm_spawn(CHILD_COMMAND, argv, numOfChildren, MPI_INFO_NULL, MASTER_RANK, MPI_COMM_SELF, &childComm, MPI_ERRCODES_IGNORE);
 	while(shouldLoop)
 	{
-		MPI_Comm_spawn(CHILD_COMMAND, argv, numOfChildren, MPI_INFO_NULL, MASTER_RANK, MPI_COMM_SELF, &childComm, MPI_ERRCODES_IGNORE);
+		MPI_Bcast(&iterations, 1, MPI_INT, MPI_ROOT, childComm);
 		MPI_Reduce(&pi, &piNew, 1, MPI_FLOAT, MPI_SUM, MPI_ROOT, childComm);
-		piNew = (pi + piNew)/(numOfChildren+1);
+		piNew /= numOfChildren;
 
 		if (rateOfChange(piNew, pi) < CONVERGENCE_THRESHOLD && rateOfChange(piNew, pi) > -CONVERGENCE_THRESHOLD)
 		{
@@ -65,9 +69,13 @@ int main(int argc, char *argv[])
 		else
 		{
 			convergenceNum = 0;
+			iterations += ITERATIONS_INCREMENT;
 		}
+
 		pi = piNew;
 		printf("Aggregate Pi = %f\n", pi);
+
+		MPI_Bcast(&shouldLoop, 1, MPI_INT, MPI_ROOT, childComm);
 	}
 	endTime = MPI_Wtime();
 	MPI_Finalize();
