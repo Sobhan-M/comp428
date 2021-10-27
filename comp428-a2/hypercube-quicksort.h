@@ -11,11 +11,12 @@ namespace Sort
 	// The second part is all values > the pivot.
 	// The input size is used and not modified.
 	// The new sizes are modified using the last two parameters respectively.
+	// Note that the lists returned must be deallocated by the caller.
 	void Partition(int* list, int size, int pivot, int* smallerList, int* biggerList, int& smallerSize, int& biggerSize);
 
 	// This function joins the lists together and returns a larger list.
-	// At the end of this, both input sizes will be modified and will become equal to the final list.
-	int* Join(int* list1, int& size1, int* list2, int& size2);
+	// Note that the list returned must be deallocated by the caller.
+	void Join(int* list1, int size1, int* list2, int size2, int* newList, int& newSize);
 }
 
 #endif

@@ -40,11 +40,11 @@ void Sort::Partition(int* list, int size, int pivot, int* smallerList, int* bigg
 	}
 }
 
-int* Sort::Join(int* list1, int& size1, int* list2, int& size2)
+void Sort::Join(int* list1, int size1, int* list2, int size2, int* newList, int& newSize)
 {
 	// Joining arrays.
-	int newSize = size1 + size2;
-	int* newList = new int[newSize];
+	newSize = size1 + size2;
+	newList = new int[newSize];
 
 	for (int i = 0 ; i < size1 ; ++i)
 	{
@@ -55,9 +55,4 @@ int* Sort::Join(int* list1, int& size1, int* list2, int& size2)
 	{
 		newList[size1 + i] = list2[i];
 	}
-
-	// Returning values.
-	size1 = newSize;
-	size2 = newSize;
-	return newList;
 }
