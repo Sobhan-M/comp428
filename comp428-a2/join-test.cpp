@@ -16,5 +16,8 @@ int main()
 		std::cout << newList[i] << " ";
 	}
 
+	delete[] newList;
+	newList = nullptr;
+
 	return 0;
 }
