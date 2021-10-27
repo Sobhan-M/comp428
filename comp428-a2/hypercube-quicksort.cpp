@@ -3,7 +3,7 @@
 
 int Sort::SelectPivot(int min, int max)
 {
-	return (rand() % (max - min)) + 1;
+	return (rand() % (max - min + 1)) + 1;
 }
 
 void Sort::Partition(int* list, int size, int pivot, int* smallerList, int* biggerList, int& smallerSize, int& biggerSize)
