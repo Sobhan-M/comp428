@@ -1,9 +1,18 @@
 #include "hypercube-quicksort.h"
 #include <stdlib.h>
 
-int Sort::SelectPivot(int min, int max)
+int Sort::Random(int min, int max)
 {
 	return (rand() % (max - min + 1)) + min;
+}
+
+void Sort::RandomList(int*& list, int size, int min, int max)
+{
+	list = new int[size];
+	for (int i = 0; i < size; ++i)
+	{
+		list[i] = Sort::Random(min, max);
+	}
 }
 
 void Sort::Partition(int* list, int size, int pivot, int*& smallerList, int*& biggerList, int& smallerSize, int& biggerSize)

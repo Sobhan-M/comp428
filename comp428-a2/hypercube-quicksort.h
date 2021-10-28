@@ -4,7 +4,11 @@
 namespace Sort
 {
 	// This function returns a random pivot between min and max, inclusive.
-	int SelectPivot(int min, int max);
+	int Random(int min, int max);
+
+	// This procedure creates a randomized list of a given length. Where the values are between min and max inclusive.
+	// The returned list must be deallocated by the caller.
+	void RandomList(int*& list, int size, int min, int max);
 
 	// This function partitions the list into two parts. 
 	// The first part is all values <= the pivot. 

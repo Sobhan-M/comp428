@@ -9,7 +9,7 @@ int main()
 
 	for (int i = 0 ; i < 10 ; ++i)
 	{
-		std::cout << Sort::SelectPivot(5, 15) << std::endl;
+		std::cout << Sort::Random(5, 15) << std::endl;
 	}
 
 	return 0;
