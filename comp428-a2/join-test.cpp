@@ -1,15 +1,17 @@
 #include "hypercube-quicksort.h"
 #include <stdlib.h>
 #include <iostream>
+#include <vector>
+using std::vector;
 
 int main()
 {
-	int list1[7] = {10,9,4,3,8,3,7};
-	int list2[4] = {1,4,9,6};
-	int* newList;
+	vector<int> list1 = {10,9,4,3,8,3,7};
+	vector<int> list2 = {1,4,9,6};
+	int* newList = nullptr;
 	int newSize;
 
-	Sort::Join(list1, 7, list2, 4, newList, newSize);
+	Sort::Join(list1.data(), list1.size(), list2.data(), list2.size(), newList, newSize);
 
 	for (int i = 0 ; i < newSize ; ++i)
 	{
