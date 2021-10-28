@@ -6,7 +6,7 @@ int Sort::SelectPivot(int min, int max)
 	return (rand() % (max - min + 1)) + min;
 }
 
-void Sort::Partition(int* list, int size, int pivot, int* smallerList, int* biggerList, int& smallerSize, int& biggerSize)
+void Sort::Partition(int* list, int size, int pivot, int*& smallerList, int*& biggerList, int& smallerSize, int& biggerSize)
 {
 	// Counting the sizes.
 	smallerSize = 0;
@@ -40,7 +40,7 @@ void Sort::Partition(int* list, int size, int pivot, int* smallerList, int* bigg
 	}
 }
 
-void Sort::Join(int* list1, int size1, int* list2, int size2, int* newList, int& newSize)
+void Sort::Join(int* list1, int size1, int* list2, int size2, int*& newList, int& newSize)
 {
 	// Joining arrays.
 	newSize = size1 + size2;
