@@ -142,3 +142,15 @@ bool Sort::IsSorted(int* array, int size)
 	
 	return true;
 }
+
+void Sort::ReverseList(int*& array, int size)
+{
+	int* tempArray = new int[size];
+	for (int i = 0; i < size; ++i)
+	{
+		tempArray[i] = array[size - 1 - i];
+	}
+
+	delete[] array;
+	array = tempArray;
+}

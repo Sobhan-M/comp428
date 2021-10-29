@@ -32,6 +32,9 @@ namespace Sort
 
 	// This function returns true if the array is sorted in ascending order.
 	bool IsSorted(int* array, int size);
+
+	// This function reverse the contents of the array.
+	void ReverseList(int*& array, int size);
 }
 
 #endif
