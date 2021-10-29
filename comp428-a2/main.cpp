@@ -29,13 +29,14 @@ int main(int argc, char* argv[])
 	int* list = nullptr;
 	int listSize = LOCAL_LIST_SIZE;
 
+	// Initializing stuff.
 	cout << "Initializing..." << endl;
-	
 	MPI_Init(&argc, &argv);
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	srand(rank * rank * MPI_Wtime());
 
+	// Finding dimensions and the binary ID.
 	int dimensions = (int) log2(size);
 	string binaryID = bitset<dimensions>(rank).to_string();
 
@@ -44,6 +45,7 @@ int main(int argc, char* argv[])
 		cout << "MASTER: dimensions = " << dimensions << endl;
 	}
 
+	// Randomizing lists.
 	cout << "Process " << rank << ": Creating random lists..." << endl;
 	RandomList(list, LOCAL_LIST_SIZE, MIN, MAX);
 
@@ -51,11 +53,6 @@ int main(int argc, char* argv[])
 	{
 		int pivot;
 		FindAllPivots(rank, dim, dimensions, list, listSize, pivot);
-		// TODO:
-		// Use bit to decide how to broadcast.
-		// after first iteration, we differentiate between the first bits.
-		// after second iteration, we differentiate between the two bits.
-		// after third ...
 
 		int* smallerList = nullptr;
 		int smallerSize;
@@ -64,12 +61,14 @@ int main(int argc, char* argv[])
 
 		cout << "Process " << rank << ": Partitioning..." << endl;
 
+		// Partitioning local list.
 		Partition(list, listSize, pivot, smallerList, biggerList, smallerSize, biggerSize);
 
 		string tempID = binaryID;
 		int* receiveArray = nullptr;
 		int receiveSize;
 
+		// Lower half.
 		if (binaryID[dim] == "0")
 		{
 			int pairID = bitset<dimensions>(tempID.replace(dim, 1, "1")).to_ulong();
@@ -87,6 +86,7 @@ int main(int argc, char* argv[])
 
 			Join(smallerList, smallerSize, receiveArray, receiveSize, list, listSize);
 		}
+		// Higher half.
 		else if (binaryID[dim] == "1")
 		{
 			int pairID = bitset<dimensions>(tempID.replace(dim, 1, "0")).to_ulong();
@@ -107,6 +107,7 @@ int main(int argc, char* argv[])
 			Join(biggerList, biggerSize, receiveArray, receiveSize, list, listSize);
 		}
 
+		// Deallocating memory.
 		delete[] smallerList;
 		delete[] biggerList;
 		smallerList = nullptr;
@@ -138,6 +139,7 @@ int main(int argc, char* argv[])
 
 void FindAllPivots(int rank, int dim, int dimensions, int* list, int listSize, int& pivot)
 {
+	// Special case on the first iteration.
 	if (dim == 0)
 	{
 		if (rank == MASTER_RANK)
@@ -149,34 +151,24 @@ void FindAllPivots(int rank, int dim, int dimensions, int* list, int listSize, i
 		return;
 	}
 
+	// Finding all the information with bits.
 	string binaryID = bitset<dimensions>(rank).to_string();
 	string highBits = binaryID.substr(0, dim);
 	string lowBits = binaryID.substr(dim, binaryID.length() - highBits.length());
 	int group = bitset<dim>(highBits).to_ulong();
 	int discriminator = bitset<dimensions - dim>(lowBits).to_ulong(); // What happens if this is an empty string?
+	int maxDiscriminator = pow(2, dimensions - dim) - 1;
 
 	MPI_Comm newComm;
 
 	// Refer to: https://www.open-mpi.org/doc/current/man3/MPI_Comm_split.3.php
 	MPI_Comm_split(MPI_COMM_WORLD, group, discriminator, &newComm);
-
-	int tempPivot;
-
+ 
 	if (discriminator == 0)
 	{
-		tempPivot = list[Random(0, listSize)];
-
-		// Figure out the something to be less than. The max discriminator.
-		for (int i = 1 ; i < ; ++i)
-		{
-			MPI_Send(&tempPivot, 1, MPI_INT, i, , newComm);
-		}
+		pivot = list[Random(0, listSize - 1)];
 	}
 
-	if (discriminator != 0)
-	{
-		MPI_Recv(&tempPivot, 1, MPI_INT, 0, , newComm, MPI_STATUS_IGNORE);
-	}
-
-	pivot = newPivot;
+	MPI_Bcast(&pivot, 1, MPI_INT, discriminator, &newComm);
+	MPI_Comm_free(&newComm);
 }
