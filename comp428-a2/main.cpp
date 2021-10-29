@@ -3,8 +3,11 @@
 #include <stdlib.h>
 #include <iostream>
 #include <math.h>
+#include <bitset>
+
 using std::cout, std::endl;
 using namespace Sort;
+using std::bitset;
 
 #define MASTER_RANK 0
 #define MAX 1000000
