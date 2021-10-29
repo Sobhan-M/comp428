@@ -35,6 +35,10 @@ namespace Sort
 
 	// This function reverse the contents of the array.
 	void ReverseList(int*& array, int size);
+
+	// This function does a prefix sum of the array.
+	// The caller must delete outputArray once they are done with it.
+	void PrefixSum(int* array, int size, int*& outputArray);
 }
 
 #endif

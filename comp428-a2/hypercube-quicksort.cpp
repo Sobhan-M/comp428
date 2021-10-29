@@ -154,3 +154,17 @@ void Sort::ReverseList(int*& array, int size)
 	delete[] array;
 	array = tempArray;
 }
+
+void Sort::PrefixSum(int* array, int size, int*& outputArray)
+{
+	outputArray = new int[size];
+	for (int i = 0; i < size; ++i)
+	{
+		int sum = 0;
+		for (int j = 0; j < i; ++j)
+		{
+			sum += array[j];
+		}
+		outputArray[i] = sum;
+	}
+}
