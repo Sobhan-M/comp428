@@ -19,9 +19,10 @@ using std::sort;
 #define MASTER_RANK 0
 #define MAX 1000
 #define MIN 0
-#define LOCAL_LIST_SIZE 100
+#define LOCAL_LIST_SIZE 10
 
 void FindAllPivots(int rank, int dim, int dimensions, int* list, int listSize, int& pivot);
+void PrintListContent(int* array, int size);
 
 int main(int argc, char* argv[])
 {
@@ -35,7 +36,7 @@ int main(int argc, char* argv[])
 	MPI_Init(&argc, &argv);
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-	srand(rank * rank * MPI_Wtime());
+	srand(rank * rank * time(NULL));
 
 	// Finding dimensions and the binary ID.
 	int dimensions = (int) log2(size);
@@ -79,13 +80,11 @@ int main(int argc, char* argv[])
 			MPI_Send(&biggerSize, 1, MPI_INT, pairID, 0, MPI_COMM_WORLD); // Sending array size.
 			MPI_Send(biggerList, biggerSize, MPI_INT, pairID, 1, MPI_COMM_WORLD); // Sending actual list.
 
-			cout << "Process " << rank << " / " << binaryID << ": Finished sending to " << pairID << " / " << tempID << "..." << endl;
-
 			MPI_Recv(&receiveSize, 1, MPI_INT, pairID, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE); // Receiving array size.
 			receiveArray = new int[receiveSize];
 			MPI_Recv(receiveArray, receiveSize, MPI_INT, pairID, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE); // Receiving actual array.
 
-			cout << "Process " << rank << " / " << binaryID << ": Finished receiving from " << pairID << " / " << tempID << "..." << endl;
+			cout << "Process " << rank << " / " << binaryID << ": Finished pairing with " << pairID << " / " << tempID << "..." << endl;
 
 			delete[] list;
 			list = nullptr;
@@ -103,17 +102,13 @@ int main(int argc, char* argv[])
 			receiveArray = new int[receiveSize];
 			MPI_Recv(receiveArray, receiveSize, MPI_INT, pairID, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE); // Receiving actual array.
 
-			cout << "Process " << rank << " / " << binaryID << ": Finished receiving from " << pairID << " / " << tempID << "..." << endl;
-
 			MPI_Send(&smallerSize, 1, MPI_INT, pairID, 0, MPI_COMM_WORLD); // Sending array size.
 			MPI_Send(smallerList, smallerSize, MPI_INT, pairID, 1, MPI_COMM_WORLD); // Sending actual list.
 
-			cout << "Process " << rank << " / " << binaryID << ": Finished sending to " << pairID << " / " << tempID << "..." << endl;
+			cout << "Process " << rank << " / " << binaryID << ": Finished pairing with " << pairID << " / " << tempID << "..." << endl;
 
 			delete[] list;
 			list = nullptr;
-
-			cout << "Process " << rank << ": Joining..." << endl;
 
 			Join(biggerList, biggerSize, receiveArray, receiveSize, list, listSize);
 		}
@@ -131,41 +126,52 @@ int main(int argc, char* argv[])
 	// Local quicksort.
 	vector<int> vectorList(list, list + listSize);
 	sort(vectorList.begin(), vectorList.end());
-	
-	if (rank == MASTER_RANK)
+	for (int i = 0; i < vectorList.size(); ++i)
 	{
-		cout << "Process " << rank << ": ";
-		for (int element : vectorList)
-		{
-			cout << element << " ";
-		}
+		list[i] = vectorList[i];
 	}
+	cout << "Processor " << rank << ": IsSorted(List) = " << (IsSorted(list, listSize) ? "true" : "false") << "..." << endl;
 
-	// TODO: GatherV into the master.
+	// Gathering sizes.
 	int* listOfAllSizes = new int[size];
-
 	if (rank == MASTER_RANK)
 	{
-		
-		for(int i = 0; i < size; ++i)
-		{
-			if(i = 0)
-			{
-				listOfAllSizes[i] = listSize;
-			}
-			else
-			{
-				MPI_Recv(&listOfAllSizes[i], 1, MPI_INT, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-			}
-		}
+		cout << "Processor " << rank << ": Gathering sizes of all lists..." << endl;
 	}
-	else if (rank != MASTER_RANK)
+	MPI_Gather(&listSize, 1, MPI_INT, listOfAllSizes, 1, MPI_INT, MASTER_RANK, MPI_COMM_WORLD);
+
+	// Gathering displacement.
+	int* displacement = new int[size];
+	if (rank == MASTER_RANK)
 	{
-		MPI_Send(&listSize, 1, MPI_INT, MASTER_RANK, 0, MPI_COMM_WORLD);
+		cout << "Processor " << rank << ": Finding displacements..." << endl;
+	}
+	PrefixSum(listOfAllSizes, size, displacement);
+
+	// Gathering all lists.
+	int* combinedList = new int[size * LOCAL_LIST_SIZE];
+	if (rank == MASTER_RANK)
+	{
+		cout << "Processor " << rank << ": Gathering all lists..." << endl;
+	}
+	MPI_Gatherv(list, listSize, MPI_INT, combinedList, listOfAllSizes, displacement, MPI_INT, MASTER_RANK, MPI_COMM_WORLD);
+
+	// Results.
+	if (rank == MASTER_RANK)
+	{
+		cout << "Processor " << rank << ": IsSorted(CombinedList) = " << (IsSorted(combinedList, size * LOCAL_LIST_SIZE) ? "true" : "false") << "..." << endl;
+		cout << "Processor " << rank << ": CombinedList = ";
+		PrintListContent(combinedList, size * LOCAL_LIST_SIZE);
 	}
 
 	delete[] list;
+	delete[] listOfAllSizes;
+	delete[] displacement;
+	delete[] combinedList;
 	list = nullptr;
+	listOfAllSizes = nullptr;
+	displacement = nullptr;
+	combinedList = nullptr;
 
 	MPI_Finalize();
 
@@ -205,4 +211,13 @@ void FindAllPivots(int rank, int dim, int dimensions, int* list, int listSize, i
 
 	MPI_Bcast(&pivot, 1, MPI_INT, discriminator, newComm);
 	MPI_Comm_free(&newComm);
+}
+
+void PrintListContent(int* array, int size)
+{
+	for (int i = 0; i < size; ++i)
+	{
+		cout << array[i] << " ";
+	}
+	cout << endl;
 }
