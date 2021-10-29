@@ -1,5 +1,6 @@
 #include "hypercube-quicksort.h"
 #include <stdlib.h>
+#include <string>
 
 int Sort::Random(int min, int max)
 {
@@ -64,4 +65,67 @@ void Sort::Join(int* list1, int size1, int* list2, int size2, int*& newList, int
 	{
 		newList[size1 + i] = list2[i];
 	}
+}
+
+std::string Sort::IntToBinaryString(int n, int bits) 
+{
+	std::string tempOutput = "";
+	while(true)
+	{
+		// 4 = 100
+		if (n == 0)
+		{
+			tempOutput += "0";
+			break;
+		}
+		else if (n == 1)
+		{
+			tempOutput += "1";
+			break;
+		}
+		else if (n%2 == 0)
+		{
+			tempOutput += "0";
+			n /= 2; 
+		}
+		else if (n%2 == 1)
+		{
+			tempOutput += "1";
+			n /= 2; 
+		}
+	}
+
+	// Reversing.
+	std::string output = "";
+	for (int i = tempOutput.length() - 1; i >= 0 ; --i)
+	{
+		output += tempOutput[i];
+	}
+
+	while (bits - output.length() > 0)
+	{
+		output = "0" + output;
+	}
+
+	return output;
+}
+
+int Sort::BinaryStringToInt(std::string binary)
+{
+	int output = 0;
+	int power = 1;
+	for (int i = binary.length() - 1 ; i >= 0 ; --i)
+	{
+		if (binary[i] == '0')
+		{
+			output += 0*power;
+		}
+		else if (binary[i] == '1')
+		{
+			output += 1*power;
+		}
+		power = power*2;
+	}
+
+	return output;
 }

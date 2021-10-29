@@ -8,7 +8,8 @@
 #include <algorithm>
 #include <vector>
 
-using std::cout, std::endl;
+using std::cout;
+using std::endl;
 using namespace Sort;
 using std::bitset;
 using std::string;
@@ -38,7 +39,7 @@ int main(int argc, char* argv[])
 
 	// Finding dimensions and the binary ID.
 	int dimensions = (int) log2(size);
-	string binaryID = bitset<dimensions>(rank).to_string();
+	string binaryID = IntToBinaryString(rank, dimensions);
 
 	if (rank == MASTER_RANK)
 	{
@@ -69,9 +70,9 @@ int main(int argc, char* argv[])
 		int receiveSize;
 
 		// Lower half.
-		if (binaryID[dim] == "0")
+		if (binaryID[dim] == '0')
 		{
-			int pairID = bitset<dimensions>(tempID.replace(dim, 1, "1")).to_ulong();
+			int pairID = BinaryStringToInt(tempID.replace(dim, 1, "1"));
 
 			cout << "Process " << rank << " / " << binaryID << ": Pairing with " << pairID << " / " << tempID << "..." << endl;
 
@@ -79,7 +80,7 @@ int main(int argc, char* argv[])
 			MPI_Send(&biggerList, biggerSize, MPI_INT, pairID, 1, MPI_COMM_WORLD); // Sending actual list.
 
 			MPI_Recv(&receiveSize, 1, MPI_INT, pairID, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE); // Receiving array size.
-			MPI_Recv(&receiveArray, receiveSize, MPI_INT, pairID, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE) // Receiving actual array.
+			MPI_Recv(&receiveArray, receiveSize, MPI_INT, pairID, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE); // Receiving actual array.
 
 			delete[] list;
 			list = nullptr;
@@ -87,14 +88,14 @@ int main(int argc, char* argv[])
 			Join(smallerList, smallerSize, receiveArray, receiveSize, list, listSize);
 		}
 		// Higher half.
-		else if (binaryID[dim] == "1")
+		else if (binaryID[dim] == '1')
 		{
-			int pairID = bitset<dimensions>(tempID.replace(dim, 1, "0")).to_ulong();
+			int pairID = BinaryStringToInt(tempID.replace(dim, 1, "0"));
 
 			cout << "Process " << rank << " / " << binaryID << ": Pairing with " << pairID << " / " << tempID << "..." << endl;
 
 			MPI_Recv(&receiveSize, 1, MPI_INT, pairID, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE); // Receiving array size.
-			MPI_Recv(&receiveArray, receiveSize, MPI_INT, pairID, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE) // Receiving actual array.
+			MPI_Recv(&receiveArray, receiveSize, MPI_INT, pairID, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE); // Receiving actual array.
 
 			MPI_Send(&smallerSize, 1, MPI_INT, pairID, 0, MPI_COMM_WORLD); // Sending array size.
 			MPI_Send(&smallerList, smallerSize, MPI_INT, pairID, 1, MPI_COMM_WORLD); // Sending actual list.
@@ -147,16 +148,16 @@ void FindAllPivots(int rank, int dim, int dimensions, int* list, int listSize, i
 			pivot = list[Random(0, listSize)];
 		}
 
-		MPI_Bcast(pivot, 1, MPI_INT, MASTER_RANK, MPI_COMM_WORLD);
+		MPI_Bcast(&pivot, 1, MPI_INT, MASTER_RANK, MPI_COMM_WORLD);
 		return;
 	}
 
 	// Finding all the information with bits.
-	string binaryID = bitset<dimensions>(rank).to_string();
+	string binaryID = IntToBinaryString(rank, dimensions);
 	string highBits = binaryID.substr(0, dim);
 	string lowBits = binaryID.substr(dim, binaryID.length() - highBits.length());
-	int group = bitset<dim>(highBits).to_ulong();
-	int discriminator = bitset<dimensions - dim>(lowBits).to_ulong(); // What happens if this is an empty string?
+	int group = BinaryStringToInt(highBits);
+	int discriminator = BinaryStringToInt(lowBits);
 	int maxDiscriminator = pow(2, dimensions - dim) - 1;
 
 	MPI_Comm newComm;
@@ -169,6 +170,6 @@ void FindAllPivots(int rank, int dim, int dimensions, int* list, int listSize, i
 		pivot = list[Random(0, listSize - 1)];
 	}
 
-	MPI_Bcast(&pivot, 1, MPI_INT, discriminator, &newComm);
+	MPI_Bcast(&pivot, 1, MPI_INT, discriminator, newComm);
 	MPI_Comm_free(&newComm);
 }

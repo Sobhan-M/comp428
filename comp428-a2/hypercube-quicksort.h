@@ -1,6 +1,8 @@
 #ifndef HYPERCUBE_QUICKSORT_H
 #define HYPERCUBE_QUICKSORT_H
 
+#include<string>
+
 namespace Sort
 {
 	// This function returns a random pivot between min and max, inclusive.
@@ -21,6 +23,12 @@ namespace Sort
 	// This function joins the lists together and returns a larger list.
 	// Note that the list returned must be deallocated by the caller.
 	void Join(int* list1, int size1, int* list2, int size2, int*& newList, int& newSize);
+
+	// This function converts an int into a binary and left joins 0s to match the number of bits.
+	std::string IntToBinaryString(int n, int bits);
+
+	// This function converts a binary string into an int.
+	int BinaryStringToInt(std::string binary);
 }
 
 #endif
