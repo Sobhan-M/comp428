@@ -17,9 +17,9 @@ using std::vector;
 using std::sort;
 
 #define MASTER_RANK 0
-#define MAX 1000000
+#define MAX 1000
 #define MIN 0
-#define LOCAL_LIST_SIZE 10000
+#define LOCAL_LIST_SIZE 100
 
 void FindAllPivots(int rank, int dim, int dimensions, int* list, int listSize, int& pivot);
 
@@ -77,10 +77,15 @@ int main(int argc, char* argv[])
 			cout << "Process " << rank << " / " << binaryID << ": Pairing with " << pairID << " / " << tempID << "..." << endl;
 
 			MPI_Send(&biggerSize, 1, MPI_INT, pairID, 0, MPI_COMM_WORLD); // Sending array size.
-			MPI_Send(&biggerList, biggerSize, MPI_INT, pairID, 1, MPI_COMM_WORLD); // Sending actual list.
+			MPI_Send(biggerList, biggerSize, MPI_INT, pairID, 1, MPI_COMM_WORLD); // Sending actual list.
+
+			cout << "Process " << rank << " / " << binaryID << ": Finished sending to " << pairID << " / " << tempID << "..." << endl;
 
 			MPI_Recv(&receiveSize, 1, MPI_INT, pairID, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE); // Receiving array size.
-			MPI_Recv(&receiveArray, receiveSize, MPI_INT, pairID, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE); // Receiving actual array.
+			receiveArray = new int[receiveSize];
+			MPI_Recv(receiveArray, receiveSize, MPI_INT, pairID, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE); // Receiving actual array.
+
+			cout << "Process " << rank << " / " << binaryID << ": Finished receiving from " << pairID << " / " << tempID << "..." << endl;
 
 			delete[] list;
 			list = nullptr;
@@ -95,10 +100,15 @@ int main(int argc, char* argv[])
 			cout << "Process " << rank << " / " << binaryID << ": Pairing with " << pairID << " / " << tempID << "..." << endl;
 
 			MPI_Recv(&receiveSize, 1, MPI_INT, pairID, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE); // Receiving array size.
-			MPI_Recv(&receiveArray, receiveSize, MPI_INT, pairID, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE); // Receiving actual array.
+			receiveArray = new int[receiveSize];
+			MPI_Recv(receiveArray, receiveSize, MPI_INT, pairID, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE); // Receiving actual array.
+
+			cout << "Process " << rank << " / " << binaryID << ": Finished receiving from " << pairID << " / " << tempID << "..." << endl;
 
 			MPI_Send(&smallerSize, 1, MPI_INT, pairID, 0, MPI_COMM_WORLD); // Sending array size.
-			MPI_Send(&smallerList, smallerSize, MPI_INT, pairID, 1, MPI_COMM_WORLD); // Sending actual list.
+			MPI_Send(smallerList, smallerSize, MPI_INT, pairID, 1, MPI_COMM_WORLD); // Sending actual list.
+
+			cout << "Process " << rank << " / " << binaryID << ": Finished sending to " << pairID << " / " << tempID << "..." << endl;
 
 			delete[] list;
 			list = nullptr;
@@ -129,6 +139,29 @@ int main(int argc, char* argv[])
 		{
 			cout << element << " ";
 		}
+	}
+
+	// TODO: GatherV into the master.
+	int* listOfAllSizes = new int[size];
+
+	if (rank == MASTER_RANK)
+	{
+		
+		for(int i = 0; i < size; ++i)
+		{
+			if(i = 0)
+			{
+				listOfAllSizes[i] = listSize;
+			}
+			else
+			{
+				MPI_Recv(&listOfAllSizes[i], 1, MPI_INT, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+			}
+		}
+	}
+	else if (rank != MASTER_RANK)
+	{
+		MPI_Send(&listSize, 1, MPI_INT, MASTER_RANK, 0, MPI_COMM_WORLD);
 	}
 
 	delete[] list;
