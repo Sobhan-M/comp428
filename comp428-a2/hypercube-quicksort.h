@@ -29,6 +29,9 @@ namespace Sort
 
 	// This function converts a binary string into an int.
 	int BinaryStringToInt(std::string binary);
+
+	// This function returns true if the array is sorted in ascending order.
+	bool IsSorted(int* array, int size);
 }
 
 #endif
