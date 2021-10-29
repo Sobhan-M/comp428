@@ -53,6 +53,10 @@ int main(int argc, char* argv[])
 
 	for (int dim = 0 ; dim < dimensions ; ++dim)
 	{
+
+		cout << "Process " << rank << ": List = ";
+		PrintListContent(list, listSize);
+
 		int pivot;
 		FindAllPivots(rank, dim, dimensions, list, listSize, pivot);
 
@@ -121,6 +125,9 @@ int main(int argc, char* argv[])
 
 	}
 
+	cout << "Process " << rank << ": List = ";
+	PrintListContent(list, listSize);
+
 	cout << "Process " << rank << ": Doing local quicksort..." << endl;
 
 	// Local quicksort.
@@ -130,13 +137,13 @@ int main(int argc, char* argv[])
 	{
 		list[i] = vectorList[i];
 	}
-	cout << "Processor " << rank << ": IsSorted(List) = " << (IsSorted(list, listSize) ? "true" : "false") << "..." << endl;
+	cout << "Process " << rank << ": IsSorted(List) = " << (IsSorted(list, listSize) ? "true" : "false") << "..." << endl;
 
 	// Gathering sizes.
 	int* listOfAllSizes = new int[size];
 	if (rank == MASTER_RANK)
 	{
-		cout << "Processor " << rank << ": Gathering sizes of all lists..." << endl;
+		cout << "Process " << rank << ": Gathering sizes of all lists..." << endl;
 	}
 	MPI_Gather(&listSize, 1, MPI_INT, listOfAllSizes, 1, MPI_INT, MASTER_RANK, MPI_COMM_WORLD);
 
@@ -144,7 +151,7 @@ int main(int argc, char* argv[])
 	int* displacement = new int[size];
 	if (rank == MASTER_RANK)
 	{
-		cout << "Processor " << rank << ": Finding displacements..." << endl;
+		cout << "Process " << rank << ": Finding displacements..." << endl;
 	}
 	PrefixSum(listOfAllSizes, size, displacement);
 
@@ -152,15 +159,15 @@ int main(int argc, char* argv[])
 	int* combinedList = new int[size * LOCAL_LIST_SIZE];
 	if (rank == MASTER_RANK)
 	{
-		cout << "Processor " << rank << ": Gathering all lists..." << endl;
+		cout << "Process " << rank << ": Gathering all lists..." << endl;
 	}
 	MPI_Gatherv(list, listSize, MPI_INT, combinedList, listOfAllSizes, displacement, MPI_INT, MASTER_RANK, MPI_COMM_WORLD);
 
 	// Results.
 	if (rank == MASTER_RANK)
 	{
-		cout << "Processor " << rank << ": IsSorted(CombinedList) = " << (IsSorted(combinedList, size * LOCAL_LIST_SIZE) ? "true" : "false") << "..." << endl;
-		cout << "Processor " << rank << ": CombinedList = ";
+		cout << "Process " << rank << ": IsSorted(CombinedList) = " << (IsSorted(combinedList, size * LOCAL_LIST_SIZE) ? "true" : "false") << "..." << endl;
+		cout << "Process " << rank << ": CombinedList = ";
 		PrintListContent(combinedList, size * LOCAL_LIST_SIZE);
 	}
 
@@ -185,6 +192,7 @@ void FindAllPivots(int rank, int dim, int dimensions, int* list, int listSize, i
 		if (rank == MASTER_RANK)
 		{
 			pivot = list[Random(0, listSize)];
+			cout << "Process " << rank << ": Pivot = " << pivot << "..." << endl;
 		}
 
 		MPI_Bcast(&pivot, 1, MPI_INT, MASTER_RANK, MPI_COMM_WORLD);
@@ -207,6 +215,7 @@ void FindAllPivots(int rank, int dim, int dimensions, int* list, int listSize, i
 	if (discriminator == 0)
 	{
 		pivot = list[Random(0, listSize - 1)];
+		cout << "Process " << rank << " / " << binaryID << ": Pivot = " << pivot << "..." << endl;
 	}
 
 	MPI_Bcast(&pivot, 1, MPI_INT, discriminator, newComm);
