@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
 	int listSize = LOCAL_LIST_SIZE;
 
 	// Initializing stuff.
-	cout << "Initializing..." << endl;
+	// cout << "Initializing..." << endl;
 	MPI_Init(&argc, &argv);
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -54,8 +54,8 @@ int main(int argc, char* argv[])
 	for (int dim = 0 ; dim < dimensions ; ++dim)
 	{
 
-		cout << "Process " << rank << ": List = ";
-		PrintListContent(list, listSize);
+		// cout << "Process " << rank << ": List = ";
+		// PrintListContent(list, listSize);
 
 		int pivot;
 		FindAllPivots(rank, dim, dimensions, list, listSize, pivot);
@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
 		int* biggerList = nullptr;
 		int biggerSize;
 
-		cout << "Process " << rank << ": Partitioning..." << endl;
+		// cout << "Process " << rank << ": Partitioning..." << endl;
 
 		// Partitioning local list.
 		Partition(list, listSize, pivot, smallerList, biggerList, smallerSize, biggerSize);
@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
 			receiveArray = new int[receiveSize];
 			MPI_Recv(receiveArray, receiveSize, MPI_INT, pairID, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE); // Receiving actual array.
 
-			cout << "Process " << rank << " / " << binaryID << ": Finished pairing with " << pairID << " / " << tempID << "..." << endl;
+			// cout << "Process " << rank << " / " << binaryID << ": Finished pairing with " << pairID << " / " << tempID << "..." << endl;
 
 			delete[] list;
 			list = nullptr;
@@ -109,7 +109,7 @@ int main(int argc, char* argv[])
 			MPI_Send(&smallerSize, 1, MPI_INT, pairID, 0, MPI_COMM_WORLD); // Sending array size.
 			MPI_Send(smallerList, smallerSize, MPI_INT, pairID, 1, MPI_COMM_WORLD); // Sending actual list.
 
-			cout << "Process " << rank << " / " << binaryID << ": Finished pairing with " << pairID << " / " << tempID << "..." << endl;
+			// cout << "Process " << rank << " / " << binaryID << ": Finished pairing with " << pairID << " / " << tempID << "..." << endl;
 
 			delete[] list;
 			list = nullptr;
@@ -125,8 +125,8 @@ int main(int argc, char* argv[])
 
 	}
 
-	cout << "Process " << rank << ": List = ";
-	PrintListContent(list, listSize);
+	// cout << "Process " << rank << ": List = ";
+	// PrintListContent(list, listSize);
 
 	cout << "Process " << rank << ": Doing local quicksort..." << endl;
 
@@ -143,7 +143,7 @@ int main(int argc, char* argv[])
 	int* listOfAllSizes = new int[size];
 	if (rank == MASTER_RANK)
 	{
-		cout << "Process " << rank << ": Gathering sizes of all lists..." << endl;
+		// cout << "Process " << rank << ": Gathering sizes of all lists..." << endl;
 	}
 	MPI_Gather(&listSize, 1, MPI_INT, listOfAllSizes, 1, MPI_INT, MASTER_RANK, MPI_COMM_WORLD);
 
@@ -151,7 +151,7 @@ int main(int argc, char* argv[])
 	int* displacement = new int[size];
 	if (rank == MASTER_RANK)
 	{
-		cout << "Process " << rank << ": Finding displacements..." << endl;
+		// cout << "Process " << rank << ": Finding displacements..." << endl;
 	}
 	PrefixSum(listOfAllSizes, size, displacement);
 
@@ -159,7 +159,7 @@ int main(int argc, char* argv[])
 	int* combinedList = new int[size * LOCAL_LIST_SIZE];
 	if (rank == MASTER_RANK)
 	{
-		cout << "Process " << rank << ": Gathering all lists..." << endl;
+		// cout << "Process " << rank << ": Gathering all lists..." << endl;
 	}
 	MPI_Gatherv(list, listSize, MPI_INT, combinedList, listOfAllSizes, displacement, MPI_INT, MASTER_RANK, MPI_COMM_WORLD);
 
@@ -192,7 +192,7 @@ void FindAllPivots(int rank, int dim, int dimensions, int* list, int listSize, i
 		if (rank == MASTER_RANK)
 		{
 			pivot = list[Random(0, listSize)];
-			cout << "Process " << rank << ": Pivot = " << pivot << "..." << endl;
+			// cout << "Process " << rank << ": Pivot = " << pivot << "..." << endl;
 		}
 
 		MPI_Bcast(&pivot, 1, MPI_INT, MASTER_RANK, MPI_COMM_WORLD);
@@ -211,15 +211,20 @@ void FindAllPivots(int rank, int dim, int dimensions, int* list, int listSize, i
 
 	// Refer to: https://www.open-mpi.org/doc/current/man3/MPI_Comm_split.3.php
 	MPI_Comm_split(MPI_COMM_WORLD, group, discriminator, &newComm);
- 
+
 	if (discriminator == 0)
 	{
 		pivot = list[Random(0, listSize - 1)];
 		cout << "Process " << rank << " / " << binaryID << ": Pivot = " << pivot << "..." << endl;
 	}
 
-	MPI_Bcast(&pivot, 1, MPI_INT, discriminator, newComm);
+	MPI_Bcast(&pivot, 1, MPI_INT, 0, newComm);
+
 	MPI_Comm_free(&newComm);
+
+	// cout << "Process " << rank << " / " << binaryID << ": High Bits = " << highBits 
+	// 	<< "; Low Bits = " << lowBits << "; Group = " << group << "; Discriminator = " << discriminator
+	// 	<< "; Max Discriminator = " << maxDiscriminator << "; Pivot = " << pivot << "..." << endl;
 }
 
 void PrintListContent(int* array, int size)
