@@ -17,9 +17,9 @@ using std::vector;
 using std::sort;
 
 #define MASTER_RANK 0
-#define MAX 1000
+#define MAX 1000000
 #define MIN 0
-#define LOCAL_LIST_SIZE 10
+#define LOCAL_LIST_SIZE 100000
 
 void FindAllPivots(int rank, int dim, int dimensions, int* list, int listSize, int& pivot);
 void PrintListContent(int* array, int size);
@@ -30,6 +30,8 @@ int main(int argc, char* argv[])
 	int size;
 	int* list = nullptr;
 	int listSize = LOCAL_LIST_SIZE;
+	double startTime;
+	double endTime;
 
 	// Initializing stuff.
 	// cout << "Initializing..." << endl;
@@ -45,6 +47,7 @@ int main(int argc, char* argv[])
 	if (rank == MASTER_RANK)
 	{
 		cout << "MASTER: dimensions = " << dimensions << endl;
+		startTime = MPI_Wtime();
 	}
 
 	// Randomizing lists.
@@ -137,7 +140,7 @@ int main(int argc, char* argv[])
 	{
 		list[i] = vectorList[i];
 	}
-	cout << "Process " << rank << ": IsSorted(List) = " << (IsSorted(list, listSize) ? "true" : "false") << "..." << endl;
+	// cout << "Process " << rank << ": IsSorted(List) = " << (IsSorted(list, listSize) ? "true" : "false") << "..." << endl;
 
 	// Gathering sizes.
 	int* listOfAllSizes = new int[size];
@@ -166,9 +169,11 @@ int main(int argc, char* argv[])
 	// Results.
 	if (rank == MASTER_RANK)
 	{
-		cout << "Process " << rank << ": IsSorted(CombinedList) = " << (IsSorted(combinedList, size * LOCAL_LIST_SIZE) ? "true" : "false") << "..." << endl;
-		cout << "Process " << rank << ": CombinedList = ";
-		PrintListContent(combinedList, size * LOCAL_LIST_SIZE);
+		cout << "MASTER: IsSorted(CombinedList) = " << (IsSorted(combinedList, size * LOCAL_LIST_SIZE) ? "true" : "false") << "..." << endl;
+		// cout << "Process " << rank << ": CombinedList = ";
+		// PrintListContent(combinedList, size * LOCAL_LIST_SIZE);
+		endTime = MPI_Wtime();
+		cout << "MASTER: Time = " << endTime - startTime << " s..." << endl;
 	}
 
 	delete[] list;
@@ -215,7 +220,7 @@ void FindAllPivots(int rank, int dim, int dimensions, int* list, int listSize, i
 	if (discriminator == 0)
 	{
 		pivot = list[Random(0, listSize - 1)];
-		cout << "Process " << rank << " / " << binaryID << ": Pivot = " << pivot << "..." << endl;
+		// cout << "Process " << rank << " / " << binaryID << ": Pivot = " << pivot << "..." << endl;
 	}
 
 	MPI_Bcast(&pivot, 1, MPI_INT, 0, newComm);
