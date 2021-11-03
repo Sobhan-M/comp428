@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 {
 	int rank;
 	int size;
-	int* list = nullptr;
+	int* list = NULL;
 	int listSize = LOCAL_LIST_SIZE;
 	double startTime;
 	double endTime;
@@ -63,9 +63,9 @@ int main(int argc, char* argv[])
 		int pivot;
 		FindAllPivots(rank, dim, dimensions, list, listSize, pivot);
 
-		int* smallerList = nullptr;
+		int* smallerList = NULL;
 		int smallerSize;
-		int* biggerList = nullptr;
+		int* biggerList = NULL;
 		int biggerSize;
 
 		// cout << "Process " << rank << ": Partitioning..." << endl;
@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
 		Partition(list, listSize, pivot, smallerList, biggerList, smallerSize, biggerSize);
 
 		string tempID = binaryID;
-		int* receiveArray = nullptr;
+		int* receiveArray = NULL;
 		int receiveSize;
 
 		// Lower half.
@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
 			// cout << "Process " << rank << " / " << binaryID << ": Finished pairing with " << pairID << " / " << tempID << "..." << endl;
 
 			delete[] list;
-			list = nullptr;
+			list = NULL;
 
 			Join(smallerList, smallerSize, receiveArray, receiveSize, list, listSize);
 		}
@@ -115,7 +115,7 @@ int main(int argc, char* argv[])
 			// cout << "Process " << rank << " / " << binaryID << ": Finished pairing with " << pairID << " / " << tempID << "..." << endl;
 
 			delete[] list;
-			list = nullptr;
+			list = NULL;
 
 			Join(biggerList, biggerSize, receiveArray, receiveSize, list, listSize);
 		}
@@ -123,8 +123,8 @@ int main(int argc, char* argv[])
 		// Deallocating memory.
 		delete[] smallerList;
 		delete[] biggerList;
-		smallerList = nullptr;
-		biggerList = nullptr;
+		smallerList = NULL;
+		biggerList = NULL;
 
 	}
 
@@ -180,10 +180,10 @@ int main(int argc, char* argv[])
 	delete[] listOfAllSizes;
 	delete[] displacement;
 	delete[] combinedList;
-	list = nullptr;
-	listOfAllSizes = nullptr;
-	displacement = nullptr;
-	combinedList = nullptr;
+	list = NULL;
+	listOfAllSizes = NULL;
+	displacement = NULL;
+	combinedList = NULL;
 
 	MPI_Finalize();
 
