@@ -1,5 +1,7 @@
 #include "functions.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
 
 #define MATRIX_LENGTH 4
@@ -9,10 +11,13 @@
 
 int main()
 {
-	int** matrix = malloc(sizeof(int)*MATRIX_LENGTH);
+	srand(time(NULL));
+
+	int** matrix;
+	matrix = (int**) malloc(sizeof(int)*MATRIX_LENGTH);
 	for (int i = 0; i < MATRIX_LENGTH; ++i)
 	{
-		matrix[i] = malloc(sizeof(int)*MATRIX_LENGTH);
+		matrix[i] = (int*) malloc(sizeof(int)*MATRIX_LENGTH);
 	}
 
 	RandomMatrix(matrix, MATRIX_LENGTH, MIN, MAX);
@@ -27,9 +32,9 @@ int main()
 		{
 			for (int j = 0; j < MATRIX_LENGTH; ++j)
 			{
-				if (matrix[i][j] > matrix[i][k] + matrix[k][i])
+				if (matrix[i][j] > matrix[i][k] + matrix[k][j])
 				{
-					matrix[i][j] = matrix[i][k] + matrix[k][i];
+					matrix[i][j] = matrix[i][k] + matrix[k][j];
 				}
 			}
 		}
@@ -37,6 +42,13 @@ int main()
 
 	printf("Final Matrix:\n");
 	PrintMatrix(matrix, MATRIX_LENGTH);
+
+	// Does not work for some reason:
+	// free(matrix[0]);
+	free(matrix[1]);
+	free(matrix[2]);
+	free(matrix[3]);
+	free(matrix);
 
 	return 0;
 }
