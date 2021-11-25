@@ -20,7 +20,10 @@ void RandomMatrix(int** list, int n, int min, int max)
 {
 	for (int i = 0; i < n; ++i)
 	{
-		RandomList(list[i], n, min, max);
+		for (int j = 0; j < n; ++j)
+		{
+			list[i][j] = Random(min, max);
+		}
 	}
 }
 

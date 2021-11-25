@@ -1,12 +1,11 @@
 #include "functions.h"
 #include <mpi.h>
-#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
 // Matrix of size n x n
-#define N 24
+#define N 8
 
 #define MIN 1
 #define MAX 10
@@ -15,7 +14,7 @@
 
 int GetRow(int rank, int m)
 {
-	return (rank * m) % N;
+	return rank % (N/m);
 }
 
 int GetColumn(int rank, int m)
@@ -23,27 +22,53 @@ int GetColumn(int rank, int m)
 	return (rank * m) / N;
 }
 
+int Sqrt(int n)
+{
+	if (n == 4)
+		return 2;
+	else if (n == 9)
+		return 3;
+	else if (n == 16)
+		return 4;
+	else if (n == 25)
+		return 5;
+	else if (n == 36)
+		return 6;
+	else if (n == 49)
+		return 7;
+	else if (n == 64)
+		return 8;
+	else if (n > 64)
+	{
+		printf("Error! Only supports up to n = 64!\n");
+		exit(1);
+	}
+	else
+	{
+		printf("Error! Only supports perfect squares!\n");
+		exit(1);
+	}
+}
+
 int main(int argc, char* argv[])
 {
 	int size, rank;
 	int row, column;
 
-	// int matrix[N][N];
-	int** matrix;
-	matrix = (int**) malloc(sizeof(int)*N);
-	for(int i = 0; i < N; ++i)
-	{
-		matrix[i] = (int*) malloc(sizeof(int)*N);
-	}
-
-	int* globalArray;
-	globalArray = (int*) malloc(sizeof(int)*N*N);
-
 	MPI_Init(&argc, &argv);
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-	srand(rank*rank*time(NULL));
+	// int matrix[N][N];
+	int** matrix = new int*[N];
+	for (int i = 0; i < N; ++i)
+	{
+		matrix[i] = new int[N];
+	}
+
+	int* globalArray = new int[N*N];
+
+	srand(time(NULL));
 
 	if (rank == MASTER)
 	{
@@ -57,16 +82,16 @@ int main(int argc, char* argv[])
 		MatrixToArray(matrix, N, globalArray);
 	}
 	
-	printf("Processor %d: Broadcasting global matrix.\n", rank);
+	// printf("Processor %d: Receiving global matrix.\n", rank);
 	MPI_Bcast(globalArray, N*N, MPI_INT, MASTER, MPI_COMM_WORLD);
-	printf("Processor %d: Finished broadcasting global matrix.\n", rank);
 	ArrayToMatrix(matrix, N, globalArray);
 
 	// The m x m chunk of each processor.
 	// int m = N / ((int) sqrt((double) size));
-	int m = N / 2;
+	int m = N / Sqrt(size);
 	row = GetRow(rank, m);
 	column = GetColumn(rank, m);
+	// printf("Process %d: (row, column) = (%d, %d)\n", rank, row, column);
 
 	MPI_Comm rowWorld;
 	MPI_Comm columnWorld;
@@ -76,19 +101,20 @@ int main(int argc, char* argv[])
 		printf("Processor %d: Creating new worlds.\n", rank);
 	}
 
-
 	MPI_Comm_split(MPI_COMM_WORLD, row, column, &rowWorld);
 	MPI_Comm_split(MPI_COMM_WORLD, column, row, &columnWorld);
 
-	int** bufferMatrix;
-	bufferMatrix = (int**) malloc(sizeof(int)*m);
-	for (int i = 0; i < N; ++i)
+	if (rank == MASTER)	
 	{
-		bufferMatrix[i] = (int*) malloc(sizeof(int)*m);
+		printf("Processor %d: Creating local buffers.\n", rank);
+	}
+	int** bufferMatrix = new int*[m];
+	for (int i = 0; i < m; ++i)
+	{
+		bufferMatrix[i] = new int[m];
 	}
 
-	int* bufferArray;
-	bufferArray = (int*) malloc(sizeof(int)*m*m);
+	int* bufferArray = new int[m*m];
 
 	for (int k = 0; k < N; ++k)
 	{
@@ -106,16 +132,20 @@ int main(int argc, char* argv[])
 		{
 			if (rank == i)
 			{
+				// printf("Processor %d: Preparing to broadcast to row %d\n", rank, row);
 				FillLocalMatrix(matrix, bufferMatrix, m, row, column);
 				MatrixToArray(bufferMatrix, m, bufferArray);
+				// printf("Processor %d: Finished preparing to broadcast to row %d\n", rank, row);
 			}
 
 			// If I have the "if" do I even need new worlds?
 			if (row == GetRow(i, m))
 			{
-				MPI_Bcast(bufferArray, m*m, MPI_INT, i, rowWorld);
+				// printf("Processor %d: Receiving in row %d from process %d\n", rank, row, i);
+				MPI_Bcast(bufferArray, m*m, MPI_INT, GetColumn(i, m), rowWorld);
 				ArrayToMatrix(bufferMatrix, m, bufferArray);
 				UpdateGlobalMatrix(matrix, bufferMatrix, m, GetRow(i, m), GetColumn(i, m));
+				// printf("Processor %d: Finished receiving in row %d from process %d\n", rank, row, i);
 			}
 		}
 
@@ -129,16 +159,20 @@ int main(int argc, char* argv[])
 		{
 			if (rank == i)
 			{
+				// printf("Processor %d: Preparing to broadcast to column %d\n", rank, column);
 				FillLocalMatrix(matrix, bufferMatrix, m, row, column);
 				MatrixToArray(bufferMatrix, m, bufferArray);
+				// printf("Processor %d: Finished preparing to broadcast to column %d\n", rank, column);
 			}
 
 			// If I have the "if" do I even need new worlds?
 			if (column == GetColumn(i, m))
 			{
-				MPI_Bcast(bufferArray, m*m, MPI_INT, i, columnWorld);
+				// printf("Processor %d: Receiving in column %d from process %d\n", rank, column, i);
+				MPI_Bcast(bufferArray, m*m, MPI_INT, GetRow(i, m), columnWorld);
 				ArrayToMatrix(bufferMatrix, m, bufferArray);
 				UpdateGlobalMatrix(matrix, bufferMatrix, m, GetRow(i, m), GetColumn(i, m));
+				// printf("Processor %d: Finished receiving in column %d from process %d\n", rank, column, i);
 			}
 		}
 
