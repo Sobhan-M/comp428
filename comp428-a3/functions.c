@@ -43,3 +43,56 @@ void PrintMatrix(int** matrix, int n)
 		printf("\n");
 	}
 }
+
+void FillLocalMatrix(int** matrix, int** localMatrix, int m, int row, int column)
+{
+	for (int i = 0; i < m; ++i)
+	{
+		for (int j = 0; j < m; ++j)
+		{
+			localMatrix[i][j] = matrix[row*m + i][column*m + j];
+		}
+	}
+}
+
+void UpdateGlobalMatrix(int** matrix, int** localMatrix, int m, int row, int column)
+{
+	for (int i = 0; i < m; ++i)
+	{
+		for (int j = 0; j < m; ++j)
+		{
+			matrix[row*m + i][column*m + j] = localMatrix[i][j];
+		}
+	}
+}
+
+void MatrixToArray(int** matrix, int n, int* array)
+{
+	for(int i = 0; i < n; ++i)
+	{
+		for(int j = 0; j < n; ++j)
+		{
+			array[n*i + j] = matrix[i][j];
+		}
+	}
+}
+
+void ArrayToMatrix(int** matrix, int n, int* array)
+{
+	for (int i = 0; i < n; ++i)
+	{
+		for (int j = 0; j < n; ++j)
+		{
+			matrix[i][j] = array[n*i + j];
+		}
+	}
+}
+
+void PrintArray(int* array, int n)
+{
+	for (int i = 0; i < n; ++i)
+	{
+		printf("%d ", array[i]);
+	}
+	printf("\n");
+}

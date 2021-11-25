@@ -18,4 +18,18 @@ void InitializeShortestPathMatrix(int** matrix, int n);
 // Prints the contents of the n x n matrix.
 void PrintMatrix(int** matrix, int n);
 
+// Fills the local matrix with the corresponding elements of the global matrix.
+void FillLocalMatrix(int** matrix, int** localMatrix, int m, int row, int column);
+
+// Updates the appropriate part of the global matrix with the local content.
+void UpdateGlobalMatrix(int** matrix, int** localMatrix, int m, int row, int column);
+
+// Converts a 2D array to a 1D array, because MPI does not work well with 2D dynamic memory. The output and input have a size of n x n.
+void MatrixToArray(int** matrix, int n, int* array);
+
+// Converts a 1D array to 2D array, again because MPI does not work well with 2D dynamic memory. The output and input have a size of n x n.
+void ArrayToMatrix(int** matrix, int n, int* array);
+
+// Prints the contents of the array.
+void PrintArray(int* array, int n);
 #endif
