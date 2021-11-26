@@ -83,16 +83,16 @@ int main(int argc, char* argv[])
 
 	if (rank == MASTER)
 	{
-		printf("Processor %d: Creating global matrix.\n", rank);
+		// printf("Processor %d: Creating global matrix.\n", rank);
 		// RandomMatrix(matrix, N, MIN, MAX);
 		// InitializeShortestPathMatrix(matrix, N);
 
 		int statMatrix[N][N] = 
 		{
-			{0, 1, 2, 3},
-			{4, 0, 5, 6},
-			{7, 8, 0 ,9},
-			{1, 2, 3, 0}
+			{0, 4, 2, 3},
+			{1, 0, 5, 6},
+			{7, 3, 0 ,9},
+			{4, 5, 3, 0}
 		};
 		StaticArrToDynamic(matrix, statMatrix);
 
@@ -116,18 +116,18 @@ int main(int argc, char* argv[])
 	MPI_Comm rowWorld;
 	MPI_Comm columnWorld;
 
-	if (rank == MASTER)
-	{
-		printf("Processor %d: Creating new worlds.\n", rank);
-	}
+	// if (rank == MASTER)
+	// {
+	// 	printf("Processor %d: Creating new worlds.\n", rank);
+	// }
 
 	MPI_Comm_split(MPI_COMM_WORLD, row, column, &rowWorld);
 	MPI_Comm_split(MPI_COMM_WORLD, column, row, &columnWorld);
 
-	if (rank == MASTER)	
-	{
-		printf("Processor %d: Creating local buffers.\n", rank);
-	}
+	// if (rank == MASTER)	
+	// {
+	// 	printf("Processor %d: Creating local buffers.\n", rank);
+	// }
 	int** bufferMatrix = new int*[m];
 	for (int i = 0; i < m; ++i)
 	{
@@ -142,10 +142,10 @@ int main(int argc, char* argv[])
 		// Probably involves more malloc, so I don't want to do it because memory management
 		// is a pain in C.
 
-		if (rank == MASTER)
-		{
-			printf("Processor %d: Broadcasting across rows.\n", rank);
-		}
+		// if (rank == MASTER)
+		// {
+		// 	printf("Processor %d: Broadcasting across rows.\n", rank);
+		// }
 
 		// Broadcasting along row.
 		for (int i = 0; i < size; ++i)
@@ -169,10 +169,10 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		if (rank == MASTER)
-		{
-			printf("Processor %d: Broadcasting across columns.\n", rank);
-		}
+		// if (rank == MASTER)
+		// {
+		// 	printf("Processor %d: Broadcasting across columns.\n", rank);
+		// }
 
 		// Broadcasting along column.
 		for (int i = 0; i < size; ++i)
@@ -196,10 +196,10 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		if (rank == MASTER)
-		{
-			printf("Processor %d: Doing local algorithm.\n", rank);
-		}
+		// if (rank == MASTER)
+		// {
+		// 	printf("Processor %d: Doing local algorithm.\n", rank);
+		// }
 
 		// Doing the local Floyd algorithm.
 		for (int i = 0; i < m; ++i)
@@ -214,10 +214,10 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	if (rank == MASTER)
-	{
-		printf("Processor %d: Aggregating matrix.\n", rank);
-	}
+	// if (rank == MASTER)
+	// {
+	// 	printf("Processor %d: Aggregating matrix.\n", rank);
+	// }
 
 	for (int i = 1; i < size; ++i)
 	{

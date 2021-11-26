@@ -88,16 +88,16 @@ int main(int argc, char* argv[])
 
 	if (rank == MASTER)
 	{
-		printf("Processor %d: Creating global matrix.\n", rank);
+		// printf("Processor %d: Creating global matrix.\n", rank);
 		// RandomMatrix(matrix, N, MIN, MAX);
 		// InitializeShortestPathMatrix(matrix, N);
 
 		int statMatrix[N][N] = 
 		{
-			{0, 1, 2, 3},
-			{4, 0, 5, 6},
-			{7, 8, 0 ,9},
-			{1, 2, 3, 0}
+			{0, 4, 2, 3},
+			{1, 0, 5, 6},
+			{7, 3, 0 ,9},
+			{4, 5, 3, 0}
 		};
 		StaticArrToDynamic(matrix, statMatrix);
 
@@ -118,10 +118,10 @@ int main(int argc, char* argv[])
 	column = GetColumn(rank, m);
 	// printf("Process %d: (row, column) = (%d, %d)\n", rank, row, column);
 
-	if (rank == MASTER)	
-	{
-		printf("Processor %d: Creating local buffers.\n", rank);
-	}
+	// if (rank == MASTER)	
+	// {
+	// 	printf("Processor %d: Creating local buffers.\n", rank);
+	// }
 	int** bufferMatrix = new int*[m];
 	for (int i = 0; i < m; ++i)
 	{
@@ -177,30 +177,37 @@ int main(int argc, char* argv[])
 
 			if (column > 0)
 			{
-				MPI_Send(bufferColumn, m, MPI_INT, GetRank(row, column - 1, m), 0, MPI_COMM_WORLD);
+				MPI_Send(bufferColumn, m, MPI_INT, GetRank(row, column - 1, m), 1, MPI_COMM_WORLD);
 			}
 			if (column < blocksInColumn - 1)
 			{
-				MPI_Send(bufferColumn, m, MPI_INT, GetRank(row, column + 1, m), 0, MPI_COMM_WORLD);
+				MPI_Send(bufferColumn, m, MPI_INT, GetRank(row, column + 1, m), 1, MPI_COMM_WORLD);
 			}
 		}
 		else
 		{
-			MPI_Recv(bufferColumn, m, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+			MPI_Recv(bufferColumn, m, MPI_INT, MPI_ANY_SOURCE, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 			if (IsBeforeColumn(k, column, m) && column < blocksInColumn - 1)
 			{
-				MPI_Send(bufferColumn, m, MPI_INT, GetRank(row, column + 1, m), 0, MPI_COMM_WORLD);
+				MPI_Send(bufferColumn, m, MPI_INT, GetRank(row, column + 1, m), 1, MPI_COMM_WORLD);
 			}
 			else if (IsAfterColumn(k, column, m) && column > 0)
 			{
-				MPI_Send(bufferColumn, m, MPI_INT, GetRank(row, column - 1, m), 0, MPI_COMM_WORLD);
+				MPI_Send(bufferColumn, m, MPI_INT, GetRank(row, column - 1, m), 1, MPI_COMM_WORLD);
 			}
 		}
 
-		if (rank == MASTER)
-		{
-			printf("Processor %d: Doing local algorithm.\n", rank);
-		}
+		// if (rank == MASTER)
+		// {
+		// 	printf("Processor %d: Doing local algorithm.\n", rank);
+		// }
+
+		// if (k == 0)
+		// {
+		// 	printf("Processor %d: k = %d BufferRow = [%d, %d]\n", rank, k, bufferRow[0], bufferRow[1]);
+		// 	printf("Processor %d: k = %d BufferColumn = [%d, %d]\n", rank, k, bufferColumn[0], bufferColumn[1]);
+		// }
+		
 
 		// Doing the local Floyd algorithm.
 		for (int i = 0; i < m; ++i)
@@ -215,10 +222,10 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	if (rank == MASTER)
-	{
-		printf("Processor %d: Aggregating matrix.\n", rank);
-	}
+	// if (rank == MASTER)
+	// {
+	// 	printf("Processor %d: Aggregating matrix.\n", rank);
+	// }
 
 	for (int i = 1; i < size; ++i)
 	{
