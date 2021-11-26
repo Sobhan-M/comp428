@@ -206,12 +206,12 @@ int main(int argc, char* argv[])
 		{
 			FillLocalMatrix(matrix, bufferMatrix, m, row, column);
 			MatrixToArray(bufferMatrix, m, bufferArray);
-			MPI_Send(bufferArray, m*m, MPI_INT, MASTER, 0, MPI_COMM_WORLD);
+			MPI_Send(bufferArray, m*m, MPI_INT, MASTER, i, MPI_COMM_WORLD);
 		}
 
 		if (rank == MASTER)
 		{
-			MPI_Recv(bufferArray, m*m, MPI_INT, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+			MPI_Recv(bufferArray, m*m, MPI_INT, i, i, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 			ArrayToMatrix(bufferMatrix, m, bufferArray);
 			UpdateGlobalMatrix(matrix, bufferMatrix, m, GetRow(i, m), GetColumn(i, m));
 		}
