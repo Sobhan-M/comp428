@@ -32,4 +32,22 @@ void ArrayToMatrix(int** matrix, int n, int* array);
 
 // Prints the contents of the array.
 void PrintArray(int* array, int n);
+
+// Tells you if k is an index in your row range.
+bool IsInRow(int k, int row, int m);
+
+// Tells you if k is an index in your column range or not.
+bool IsInColumn(int k, int column, int m);
+
+// Tells if k is an index before your row range.
+bool IsBeforeRow(int k, int row, int m);
+
+// Tells if k is an index after your row range.
+bool IsAfterRow(int k, int row, int m);
+
+// Tells if k is an index before your column range.
+bool IsBeforeColumn(int k, int column, int m);
+
+// Tells if k is an index after your column range.
+bool IsAfterColumn(int k, int column, int m);
 #endif

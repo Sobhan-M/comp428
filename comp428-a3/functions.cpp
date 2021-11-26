@@ -99,3 +99,33 @@ void PrintArray(int* array, int n)
 	}
 	printf("\n");
 }
+
+bool IsInRow(int k, int row, int m)
+{
+	return (k >= m*row && k < m*row + m);
+}
+
+bool IsInColumn(int k, int column, int m)
+{
+	return (k >= m*column && k < m*column + m);
+}
+
+bool IsBeforeRow(int k, int row, int m)
+{
+	return k < m*row;
+}
+
+bool IsAfterRow(int k, int row, int m)
+{
+	return k >= m*row + m;
+}
+
+bool IsBeforeColumn(int k, int column, int m)
+{
+	return k < m*column;
+}
+
+bool IsAfterColumn(int k, int column, int m)
+{
+	return k >= m*column + m;
+}
