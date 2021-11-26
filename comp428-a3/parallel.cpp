@@ -5,12 +5,23 @@
 #include <time.h>
 
 // Matrix of size n x n
-#define N 8
+#define N 4
 
 #define MIN 1
 #define MAX 10
 
 #define MASTER 0
+
+void StaticArrToDynamic(int** dynamic, int matrix[N][N])
+{	
+	for (int i = 0; i < N; ++i)
+	{
+		for (int j = 0; j < N; ++j)
+		{
+			dynamic[i][j] = matrix[i][j];
+		}
+	}
+}
 
 int GetRow(int rank, int m)
 {
@@ -73,8 +84,17 @@ int main(int argc, char* argv[])
 	if (rank == MASTER)
 	{
 		printf("Processor %d: Creating global matrix.\n", rank);
-		RandomMatrix(matrix, N, MIN, MAX);
-		InitializeShortestPathMatrix(matrix, N);
+		// RandomMatrix(matrix, N, MIN, MAX);
+		// InitializeShortestPathMatrix(matrix, N);
+
+		int statMatrix[N][N] = 
+		{
+			{0, 1, 2, 3},
+			{4, 0, 5, 6},
+			{7, 8, 0 ,9},
+			{1, 2, 3, 0}
+		};
+		StaticArrToDynamic(matrix, statMatrix);
 
 		printf("Initial Matrix:\n");
 		PrintMatrix(matrix, N);

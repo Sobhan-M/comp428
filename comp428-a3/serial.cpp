@@ -4,38 +4,53 @@
 #include <time.h>
 
 
-#define MATRIX_LENGTH 4
+#define N 4
 
 #define MIN 1
 #define MAX 10
+
+void StaticArrToDynamic(int** dynamic, int matrix[N][N])
+{	
+	for (int i = 0; i < N; ++i)
+	{
+		for (int j = 0; j < N; ++j)
+		{
+			dynamic[i][j] = matrix[i][j];
+		}
+	}
+}
 
 int main()
 {
 	srand(time(NULL));
 
 	int** matrix;
-	matrix = (int**) malloc(sizeof(int)*MATRIX_LENGTH);
-	for (int i = 0; i < MATRIX_LENGTH; ++i)
+	matrix = (int**) malloc(sizeof(int)*N);
+	for (int i = 0; i < N; ++i)
 	{
-		matrix[i] = (int*) malloc(sizeof(int)*MATRIX_LENGTH);
+		matrix[i] = (int*) malloc(sizeof(int)*N);
 	}
 
-	matrix[0][0] = 0; matrix[0][1] = 9; matrix[0][2] = 6; matrix[0][3] = 3;
-	matrix[1][0] = 9; matrix[1][1] = 0; matrix[1][2] = 3; matrix[1][3] = 10;
-	matrix[2][0] = 9; matrix[2][1] = 2; matrix[2][2] = 0; matrix[2][3] = 9;
-	matrix[3][0] = 8; matrix[3][1] = 5; matrix[3][2] = 4; matrix[3][3] = 0;
+	int statMatrix[N][N] = 
+	{
+		{0, 1, 2, 3},
+		{4, 0, 5, 6},
+		{7, 8, 0 ,9},
+		{1, 2, 3, 0}
+	};
+	StaticArrToDynamic(matrix, statMatrix);
 
-	// RandomMatrix(matrix, MATRIX_LENGTH, MIN, MAX);
-	// InitializeShortestPathMatrix(matrix, MATRIX_LENGTH);
+	// RandomMatrix(matrix, N, MIN, MAX);
+	// InitializeShortestPathMatrix(matrix, N);
 
 	printf("Initial Matrix:\n");
-	PrintMatrix(matrix, MATRIX_LENGTH);
+	PrintMatrix(matrix, N);
 
-	for (int k = 0; k < MATRIX_LENGTH; ++k)
+	for (int k = 0; k < N; ++k)
 	{
-		for (int i = 0; i < MATRIX_LENGTH; ++i)
+		for (int i = 0; i < N; ++i)
 		{
-			for (int j = 0; j < MATRIX_LENGTH; ++j)
+			for (int j = 0; j < N; ++j)
 			{
 				if (matrix[i][j] > matrix[i][k] + matrix[k][j])
 				{
@@ -46,7 +61,7 @@ int main()
 	}
 
 	printf("Final Matrix:\n");
-	PrintMatrix(matrix, MATRIX_LENGTH);
+	PrintMatrix(matrix, N);
 
 	// Does not work for some reason:
 	// free(matrix[0]);
