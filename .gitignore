@@ -5,3 +5,9 @@
 *.xlsx
 *.png
 *.drawio
+child
+master
+parallel
+serial
+main
+pipeline
