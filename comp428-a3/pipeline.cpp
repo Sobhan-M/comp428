@@ -5,7 +5,7 @@
 #include <time.h>
 
 // Matrix of size n x n
-#define N 4
+#define N 6
 
 #define MIN 1
 #define MAX 10
@@ -94,10 +94,12 @@ int main(int argc, char* argv[])
 
 		int statMatrix[N][N] = 
 		{
-			{0, 4, 2, 3},
-			{1, 0, 5, 6},
-			{7, 3, 0 ,9},
-			{4, 5, 3, 0}
+			{0, 4, 5, 2, 3, 4},
+			{6, 0, 1, 3, 6, 2},
+			{5, 4, 0, 2, 5, 1},
+			{3, 3, 4, 0, 6, 6},
+			{4, 5, 1, 8, 0, 5},
+			{6, 4, 2, 7, 4, 0}
 		};
 		StaticArrToDynamic(matrix, statMatrix);
 
