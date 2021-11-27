@@ -252,7 +252,26 @@ int main(int argc, char* argv[])
 		PrintMatrix(matrix, N);
 	}
 
-	// Deallocate bufferMatrix and bufferRow and bufferColumn.
+	// Deallocation.
+	for (int i = 0; i < N; ++i)
+	{
+		delete[] matrix[i];
+	}
+	delete[] matrix;
+
+	delete[] globalArray;
+
+	for (int i = 0; i < m; ++i)
+	{
+		delete[] bufferMatrix[i];
+	}
+	delete[] bufferMatrix;
+
+	delete[] bufferArray;
+
+	delete[] bufferRow;
+	delete[] bufferColumn;
+
 	MPI_Finalize();
 }
 

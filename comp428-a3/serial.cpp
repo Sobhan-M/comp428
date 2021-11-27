@@ -25,10 +25,10 @@ int main()
 	srand(time(NULL));
 
 	int** matrix;
-	matrix = (int**) malloc(sizeof(int)*N);
+	matrix = new int*[N];
 	for (int i = 0; i < N; ++i)
 	{
-		matrix[i] = (int*) malloc(sizeof(int)*N);
+		matrix[i] = new int[N];
 	}
 
 	int statMatrix[N][N] = 
@@ -65,12 +65,12 @@ int main()
 	printf("Final Matrix:\n");
 	PrintMatrix(matrix, N);
 
-	// Does not work for some reason:
-	// free(matrix[0]);
-	free(matrix[1]);
-	free(matrix[2]);
-	free(matrix[3]);
-	free(matrix);
+	// Deallocation.
+	for (int i = 0; i < N; ++i)
+	{
+		delete[] matrix[i];
+	}
+	delete[] matrix;
 
 	return 0;
 }
