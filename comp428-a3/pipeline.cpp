@@ -5,10 +5,10 @@
 #include <time.h>
 
 // Matrix of size n x n
-#define N 6
+#define N 120
 
 #define MIN 1
-#define MAX 10
+#define MAX 60
 
 #define MASTER 0
 
@@ -92,22 +92,22 @@ int main(int argc, char* argv[])
 		startTime = MPI_Wtime();
 
 		// printf("Processor %d: Creating global matrix.\n", rank);
-		// RandomMatrix(matrix, N, MIN, MAX);
-		// InitializeShortestPathMatrix(matrix, N);
+		RandomMatrix(matrix, N, MIN, MAX);
+		InitializeShortestPathMatrix(matrix, N);
 
-		int statMatrix[N][N] = 
-		{
-			{0, 4, 5, 2, 3, 4},
-			{6, 0, 1, 3, 6, 2},
-			{5, 4, 0, 2, 5, 1},
-			{3, 3, 4, 0, 6, 6},
-			{4, 5, 1, 8, 0, 5},
-			{6, 4, 2, 7, 4, 0}
-		};
-		StaticArrToDynamic(matrix, statMatrix);
+		// int statMatrix[N][N] = 
+		// {
+		// 	{0, 4, 5, 2, 3, 4},
+		// 	{6, 0, 1, 3, 6, 2},
+		// 	{5, 4, 0, 2, 5, 1},
+		// 	{3, 3, 4, 0, 6, 6},
+		// 	{4, 5, 1, 8, 0, 5},
+		// 	{6, 4, 2, 7, 4, 0}
+		// };
+		// StaticArrToDynamic(matrix, statMatrix);
 
-		printf("Initial Matrix:\n");
-		PrintMatrix(matrix, N);
+		// printf("Initial Matrix:\n");
+		// PrintMatrix(matrix, N);
 
 		MatrixToArray(matrix, N, globalArray);
 	}
@@ -251,8 +251,8 @@ int main(int argc, char* argv[])
 
 	if (rank == MASTER)
 	{
-		printf("Final Matrix:\n");
-		PrintMatrix(matrix, N);
+		// printf("Final Matrix:\n");
+		// PrintMatrix(matrix, N);
 
 		endTime = MPI_Wtime();
 		printf("Total Time: %f seconds.\n", (endTime - startTime));
