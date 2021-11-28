@@ -162,15 +162,25 @@ int main(int argc, char* argv[])
 		}
 		else
 		{
-			MPI_Recv(bufferRow, m, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-			if (IsBeforeRow(k, row, m) && row < blocksInRow - 1)
+			// MPI_Recv(bufferRow, m, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+			if (IsBeforeRow(k, row, m))
+			{
+				MPI_Recv(bufferRow, m, MPI_INT, GetRank(row - 1, column, m), 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+				
+				if (row < blocksInRow - 1)
 			{
 				MPI_Send(bufferRow, m, MPI_INT, GetRank(row + 1, column, m), 0, MPI_COMM_WORLD);
 			}
-			else if (IsAfterRow(k, row, m) && row > 0)
+			}
+			else if (IsAfterRow(k, row, m))
+			{
+				MPI_Recv(bufferRow, m, MPI_INT, GetRank(row + 1, column, m), 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+				
+				if (row > 0)
 			{
 				MPI_Send(bufferRow, m, MPI_INT, GetRank(row - 1, column, m), 0, MPI_COMM_WORLD);
 			}
+		}
 		}
 
 		if (IsInColumn(k, column, m))
@@ -191,14 +201,24 @@ int main(int argc, char* argv[])
 		}
 		else
 		{
-			MPI_Recv(bufferColumn, m, MPI_INT, MPI_ANY_SOURCE, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-			if (IsBeforeColumn(k, column, m) && column < blocksInColumn - 1)
+			// MPI_Recv(bufferColumn, m, MPI_INT, MPI_ANY_SOURCE, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+			if (IsBeforeColumn(k, column, m))
+			{
+				MPI_Recv(bufferColumn, m, MPI_INT, GetRank(row, column - 1, m), 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+				if (column < blocksInColumn - 1)
 			{
 				MPI_Send(bufferColumn, m, MPI_INT, GetRank(row, column + 1, m), 1, MPI_COMM_WORLD);
 			}
-			else if (IsAfterColumn(k, column, m) && column > 0)
+			}
+			else if (IsAfterColumn(k, column, m))
+			{
+				MPI_Recv(bufferColumn, m, MPI_INT, GetRank(row, column + 1, m), 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+				
+				if (column > 0)
 			{
 				MPI_Send(bufferColumn, m, MPI_INT, GetRank(row, column - 1, m), 1, MPI_COMM_WORLD);
+				}
 			}
 		}
 
