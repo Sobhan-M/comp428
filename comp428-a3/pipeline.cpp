@@ -70,6 +70,7 @@ int main(int argc, char* argv[])
 {
 	int size, rank;
 	int row, column;
+	double startTime, endTime;
 
 	MPI_Init(&argc, &argv);
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
@@ -88,6 +89,8 @@ int main(int argc, char* argv[])
 
 	if (rank == MASTER)
 	{
+		startTime = MPI_Wtime();
+
 		// printf("Processor %d: Creating global matrix.\n", rank);
 		// RandomMatrix(matrix, N, MIN, MAX);
 		// InitializeShortestPathMatrix(matrix, N);
@@ -250,6 +253,9 @@ int main(int argc, char* argv[])
 	{
 		printf("Final Matrix:\n");
 		PrintMatrix(matrix, N);
+
+		endTime = MPI_Wtime();
+		printf("Total Time: %f seconds.\n", (endTime - startTime));
 	}
 
 	// Deallocation.
