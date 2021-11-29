@@ -50,4 +50,7 @@ bool IsBeforeColumn(int k, int column, int m);
 
 // Tells if k is an index after your column range.
 bool IsAfterColumn(int k, int column, int m);
+
+// Tells if the input is the same as the matrix said to be the answer.
+bool IsEqualToAnswer(int** matrix);
 #endif
